@@ -13,14 +13,21 @@ Template.map.rendered = function() {
   L.tileLayer.provider('Thunderforest.Outdoors').addTo(map);
 
   map.on('dblclick', function(event) {
-    Markers.insert({latlng: event.latlng});
+    var marker = L.marker(event.latlng);
+    var popup = L.popup()
+    .setLatLng(event.latlng)
+    .setContent("I am a standalone <b>popup.</b></br><input type='text' class='form-control' />")
+    .openOn(map);
+    console.log("marker:"+marker.getLatLng());
+    Markers.insert({latlng: marker.getLatLng()});
+    
   });
 
   var query = Markers.find();
   query.observe({
     added: function(document) {
-      var marker = L.marker(document.latlng).addTo(map)
-        .on('click', function(event) {
+      var marker = L.marker(document.latlng).addTo(map).bindPopup("<b>create a place</b><br><input type='text' class='form-control'/>").openPopup();
+       marker.on('dblclick', function(event) {
           map.removeLayer(marker);
           Markers.remove({_id: document._id});
         });
